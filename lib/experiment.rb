@@ -8,3 +8,6 @@ contents = File.read('event_attendees.csv')
 
 # File.readlines : Read the file line by line (returns an array of lines)
 lines = File.readlines ('event_attendees.csv')
+
+puts contents
+puts lines
