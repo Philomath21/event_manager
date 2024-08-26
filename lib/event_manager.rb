@@ -10,7 +10,7 @@ def clean_zipcode (zipcode)
 end
 
 def clean_phone(phone)
-  phone = phone.split('').select { |v| v.match?(/^[0-9]$/) }.join
+  phone = phone.split('').select { |digit| digit.match?(/^[0-9]$/) }.join
   phone.size == 10 || phone.size == 11 && phone[0] == "1" ? phone[-10..] : "Bad number"
 end
 
@@ -26,11 +26,28 @@ def legislators_by_zipcode (zipcode)
       levels: 'country',
       roles: ['legislatorUpperBody', 'legislatorLowerBody']
     ).officials
+    legislators
     # returns an array of legislators
   rescue
     'You can find your representatives by visiting www.commoncause.org/take-action/find-elected-officials'
   end
 end
+
+def peak_reg_hour(reg_times_a)
+  hour_freq_hash = Hash.new(0) # hour => freq
+  reg_times_a.each do |reg_time|
+    hour_freq_hash[reg_time.hour] += 1
+  end
+
+  peak_freq = hour_freq_hash.values.max
+  peak_hours_a = []
+
+  hour_freq_hash.each do |hour, freq|
+    peak_hours_a.push(hour) if freq == peak_freq
+  end
+  peak_hours_a
+end
+reg_times_a = []
 
 def save_thank_you_letter(id,form_letter)
   Dir.mkdir('output') unless Dir.exist?('output')
@@ -57,5 +74,9 @@ contents.each do |row|
   phone = clean_phone(row[:homephone])
   legislators = legislators_by_zipcode(zipcode)
   form_letter = erb_template.result(binding)
+
   save_thank_you_letter(id,form_letter)
+  reg_times_a.push(Time.strptime(row[:regdate], "%m/%d/%y %k:%M"))
 end
+
+puts "Peak registration hour: #{peak_reg_hour(reg_times_a).join(", ")}"
