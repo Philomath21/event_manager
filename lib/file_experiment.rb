@@ -9,5 +9,7 @@ contents = File.read('event_attendees.csv')
 # File.readlines : Read the file line by line (returns an array of lines)
 lines = File.readlines ('event_attendees.csv')
 
+File.open(contents, 'w') { |file| file.puts form_letter }
+
 puts contents
 puts lines
