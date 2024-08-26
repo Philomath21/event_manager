@@ -9,6 +9,11 @@ def clean_zipcode (zipcode)
   zipcode.to_s.rjust(5, '0')[0..4]
 end
 
+def clean_phone(phone)
+  phone = phone.split('').select { |v| v.match?(/^[0-9]$/) }.join
+  phone.size == 10 || phone.size == 11 && phone[0] == "1" ? phone[-10..] : "Bad number"
+end
+
 def legislators_by_zipcode (zipcode)
   # From google api documentation:
   civic_info = Google::Apis::CivicinfoV2::CivicInfoService.new
@@ -49,6 +54,7 @@ contents.each do |row|
   id = row[0]
   name = row[:first_name]
   zipcode = clean_zipcode(row[:zipcode])
+  phone = clean_phone(row[:homephone])
   legislators = legislators_by_zipcode(zipcode)
   form_letter = erb_template.result(binding)
   save_thank_you_letter(id,form_letter)
