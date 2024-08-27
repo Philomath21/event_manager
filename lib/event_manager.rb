@@ -33,37 +33,26 @@ def legislators_by_zipcode (zipcode)
   end
 end
 
-def peak_reg_hour(reg_times_a)
-  hour_freq_hash = Hash.new(0) # hour => freq
+def time_to_hour_or_day(reg_time, ddd_or_hh)
+  ddd_or_hh == "h" ? reg_time.strftime("%H") : reg_time.strftime("%A")
+end
+
+# para (parameter) can be hour or day, ddd_or_hh can be accordingly "h" or "d"
+def peak_reg_time(reg_times_a, ddd_or_hh)
+  freq_hash = Hash.new(0) # hour/day => freq
   reg_times_a.each do |reg_time|
-    hour_freq_hash[reg_time.hour] += 1
+    freq_hash[time_to_hour_or_day(reg_time, ddd_or_hh)] += 1
   end
 
-  peak_freq = hour_freq_hash.values.max
-  peak_hours_a = []
+  peak_freq = freq_hash.values.max
+  peak_para_a = []
 
-  hour_freq_hash.each do |hour, freq|
-    peak_hours_a.push(hour) if freq == peak_freq
+  freq_hash.each do |para, freq|
+    peak_para_a.push(para) if freq == peak_freq
   end
-  peak_hours_a
+  peak_para_a
 end
 reg_times_a = []
-
-def peak_reg_day(reg_times_a)
-  day_freq_hash = Hash.new(0)
-  reg_times_a.each do |reg_time|
-    day_freq_hash[reg_time.strftime("%A")] += 1
-  end
-
-  peak_freq = day_freq_hash.values.max
-  peak_days_a = []
-
-  day_freq_hash.each do |day, freq|
-    peak_days_a.push(day) if freq == peak_freq
-  end
-  peak_days_a
-end
-
 
 def save_thank_you_letter(id,form_letter)
   Dir.mkdir('output') unless Dir.exist?('output')
@@ -95,5 +84,5 @@ contents.each do |row|
   reg_times_a.push(Time.strptime(row[:regdate], "%m/%d/%y %k:%M"))
 end
 
-puts "Peak registration hour: #{peak_reg_hour(reg_times_a).join(", ")}"
-puts "Peak registration day: #{peak_reg_day(reg_times_a).join(", ")}"
+puts "Peak registration hour: #{peak_reg_time(reg_times_a, "h").join(", ")}"
+puts "Peak registration day: #{peak_reg_time(reg_times_a, "d").join(", ")}"
